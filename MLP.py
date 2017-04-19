@@ -35,7 +35,7 @@ class MLP:
                 neuron.update_weights(learning_rate)
 
             if not self.iteration % 1000 and self.iteration != 0:
-                print("iteration: " + str(self.iteration) + " error: " + str(self.error))
+                print("iteration: " + str(self.iteration) + " error: " + str(self.error / len(patterns)))
 
             self.iteration += 1
 

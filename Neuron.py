@@ -55,7 +55,7 @@ class Neuron:
         return self.output
 
     def update_weights(self, learning_rate):
-        self.bias *= self.bias_delta
+        self.bias += self.bias_delta
         for i, weight in enumerate(self.weights):
             self.weights[i] += learning_rate * self.deltas[i]
 

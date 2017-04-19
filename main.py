@@ -16,7 +16,13 @@ ds = DataSet(num_input, num_output, [
     [1, 1, 0],
 ])
 
-mlp.train(ds.patterns, 0.01, 1)
+mlp.train(ds.patterns, 0.01, 1000000)
+
+mlp.dump_json()
+print(mlp.feed_forward([0,0]))
+print(mlp.feed_forward([0,1]))
+print(mlp.feed_forward([1,0]))
+print(mlp.feed_forward([1,1]))
 
 '''
 print("\n\nBatch training 1000 epochs")
