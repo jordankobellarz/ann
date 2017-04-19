@@ -34,6 +34,7 @@ class Neuron:
 
     def init_weights_and_bias(self):
         self.bias = random.random()
+        self.weights = []
         for i in range(self.num_input):
             self.weights.append(random.random())
 
@@ -44,7 +45,7 @@ class Neuron:
         return y * (1.0 - y)
 
     def sum(self, input):
-        potential = self.bias
+        potential = self.bias * 1
         for i, weight in enumerate(self.weights):
             potential += input[i] * weight
         return potential
@@ -53,10 +54,10 @@ class Neuron:
         self.output = self.af(self.sum(input))   # save the output for later
         return self.output
 
-    def update_weights(self):
+    def update_weights(self, learning_rate):
         self.bias *= self.bias_delta
         for i, weight in enumerate(self.weights):
-            weight *= self.deltas[i]
+            self.weights[i] += learning_rate * self.deltas[i]
 
     def dump(self):
         return {
