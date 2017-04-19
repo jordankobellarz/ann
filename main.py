@@ -20,3 +20,4 @@ training_data = DataSet(num_input, num_output, [
 ])
 
 print(mlp.feed_forward([1, 2]))
+mlp.back_propagate([1])
