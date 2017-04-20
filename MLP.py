@@ -67,7 +67,7 @@ class MLP:
 
             # calculate the retropropagated error (from output layer)
             for k, neuron_k in enumerate(self.output_layer.neurons):
-                error += neuron_k.gradients[j] * neuron_j.weights[k]
+                error += neuron_k.gradients[j] * neuron_k.weights[k]
 
             # calculate gradients and deltas for each weight
             for i, weight_i in enumerate(neuron_j.weights):
