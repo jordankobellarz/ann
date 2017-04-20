@@ -13,11 +13,11 @@ class MLP:
         self.hidden_layer = Layer(num_input, num_hidden)
         self.output_layer = Layer(num_hidden, num_output)
 
-    def train(self, patterns, learning_rate = .001, max_iterations = -1, min_error = 0.001):
+    def batch_train(self, patterns, max_iterations = -1, learning_rate = .001, momentum = .85, min_error = .001, log_each_iterations = 1000):
 
-        while (self.iteration < max_iterations or max_iterations == -1) and (self.error > min_error or self.error == 0.0):
+        while self.iteration < max_iterations or max_iterations == -1:
 
-            self.error = 0
+            self.error = 0.0
             self.reset_deltas()
 
             # batch forward and backward propagation
@@ -30,12 +30,49 @@ class MLP:
 
             # update weights for hidden and output layer
             for neuron in self.hidden_layer.neurons:
-                neuron.update_weights(learning_rate)
+                neuron.update_weights(learning_rate, momentum)
             for neuron in self.output_layer.neurons:
-                neuron.update_weights(learning_rate)
+                neuron.update_weights(learning_rate, momentum)
 
-            if not self.iteration % 1000 and self.iteration != 0:
-                print("iteration: " + str(self.iteration) + " error: " + str(self.error / len(patterns)))
+            #  stop training if the total error is below the minimum error
+            self.error /= len(patterns)
+            if self.error < min_error:
+                break
+
+            if not self.iteration % log_each_iterations and self.iteration != 0:
+                print("iteration: " + str(self.iteration) + " error: " + str(self.error))
+
+            self.iteration += 1
+
+
+    def online_train(self, patterns, max_iterations = -1, learning_rate = .001, momentum = .85, min_error = .001, log_each_iterations = 1000):
+
+        while self.iteration < max_iterations or max_iterations == -1:
+
+            self.error = 0.0
+
+            # batch forward and backward propagation
+            for pattern in patterns:
+                self.reset_deltas()
+                output = self.feed_forward(pattern['input'])
+                self.back_propagate(pattern['desired'])
+
+                # calculate the error for this pattern
+                self.error += self.mean_square_error(pattern['desired'], output)
+
+                # update weights for hidden and output layer
+                for neuron in self.hidden_layer.neurons:
+                    neuron.update_weights(learning_rate, momentum)
+                for neuron in self.output_layer.neurons:
+                    neuron.update_weights(learning_rate, momentum)
+
+            #  stop training if the total error is below the minimum error
+            self.error /= len(patterns)
+            if self.error < min_error:
+                break
+
+            if not self.iteration % log_each_iterations and self.iteration != 0:
+                print("iteration: " + str(self.iteration) + " error: " + str(self.error))
 
             self.iteration += 1
 
@@ -95,7 +132,7 @@ class MLP:
     def mean_square_error(self, desired, output):
         sum = 0.0
         for i in range(len(desired)):
-            sum += (desired[i] - output[i]) ** 2
+            sum += 1.0/2.0 * ((desired[i] - output[i]) ** 2)
         return sum
 
     def dump(self):

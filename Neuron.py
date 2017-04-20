@@ -17,6 +17,10 @@ class Neuron:
         self.deltas = []   # one delta for each weight
         self.bias_delta = 0.0
 
+        # last deltas (to use with momentum)
+        self.last_deltas = [1.0] * num_input
+        self.last_bias_delta = 1.0
+
         self.output = 0.0  # store the output for each activation
 
         # reset neuron
@@ -54,10 +58,14 @@ class Neuron:
         self.output = self.af(self.sum(input))   # save the output for later
         return self.output
 
-    def update_weights(self, learning_rate):
-        self.bias += learning_rate * self.bias_delta
+    def update_weights(self, learning_rate, momentum = 0.5):
+        self.bias += learning_rate * self.bias_delta + momentum * self.last_bias_delta
         for i, weight in enumerate(self.weights):
-            self.weights[i] += learning_rate * self.deltas[i]
+            self.weights[i] += learning_rate * self.deltas[i] + momentum * self.last_deltas[i]
+
+        # save current deltas to use with momentum on the next iteration
+        self.last_deltas = self.deltas[:]
+        self.last_bias_delta = self.bias_delta
 
     def dump(self):
         return {
