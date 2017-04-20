@@ -53,4 +53,4 @@ def max_sum_cor(sum_corr):
             max_i = i
     return max_i, max
 
-print(max_sum_cor(sum_corr))
+print(max_sum_cor(sum_corr)[0])
