@@ -33,10 +33,10 @@ class Neuron:
         self.bias_gradient = 0.0
 
     def init_weights_and_bias(self):
-        self.bias = random.random()
+        self.bias = random.randint(1, 9) / 10  # between 0.1 and 0.9
         self.weights = []
         for i in range(self.num_input):
-            self.weights.append(random.random())
+            self.weights.append(random.randint(1, 9) / 10)
 
     def af(self, u):
         return 1 / (1 + math.exp(-u))
