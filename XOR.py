@@ -14,7 +14,7 @@ ds = DataSet(num_input, num_output, [
     [0.0, 1.0, 1.0],
     [1.0, 0.0, 1.0],
     [1.0, 1.0, 0.0],
-])
+], 1)
 
 learning_rate = .01
 momentum = .85
@@ -22,7 +22,7 @@ max_iterations = 10000
 min_error = .001
 log_each_iterations = 100
 
-mlp.online_train(ds.patterns, max_iterations, learning_rate, momentum, min_error, log_each_iterations)
+mlp.online_train(ds.training_patterns, max_iterations, learning_rate, momentum, min_error, log_each_iterations)
 
 print(mlp.feed_forward([0, 0]))
 print(mlp.feed_forward([0, 1]))
