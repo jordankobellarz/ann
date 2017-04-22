@@ -24,10 +24,7 @@ log_each_iterations = 100
 
 mlp.batch_train(ds.training_patterns, max_iterations, learning_rate, momentum, min_error, log_each_iterations)
 
-print(mlp.feed_forward([0, 0]))
-print(mlp.feed_forward([0, 1]))
-print(mlp.feed_forward([1, 0]))
-print(mlp.feed_forward([1, 1]))
+mlp.test(ds.training_patterns)
 
 # mlp.dump_json()
 

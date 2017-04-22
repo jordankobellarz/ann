@@ -121,13 +121,20 @@ class MLP:
         for neuron in self.output_layer.neurons:
             neuron.reset_deltas()
 
-    def reset(self):
+    def reset_weights_and_bias(self):
         self.iteration = 0
         self.error = 0
         for neuron in self.hidden_layer.neurons:
             neuron.init_weights_and_bias()
         for neuron in self.output_layer.neurons:
             neuron.init_weights_and_bias()
+
+    def test(self, patterns, log_to_file = False):
+        for i, pattern in enumerate(patterns):
+            desired = pattern['desired'][0]
+            output = self.feed_forward(pattern['input'])[0]
+            error = desired - output
+            print("test " + str(i) + " = desired: " + str(desired) + ", got: " + str(output) + ", error: " + str(error))
 
     def mean_square_error(self, desired, output):
         sum = 0.0
