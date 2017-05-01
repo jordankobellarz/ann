@@ -12,7 +12,7 @@ def test_combinations(num_input, num_output, dataset, num_hidden_ds, learning_ra
         # store the config ID
         config_id = 1
 
-        total_tests = len(num_hidden_ds) + len(learning_rate_ds) + len(momentum_ds)
+        total_tests = len(num_hidden_ds) * len(learning_rate_ds) * len(momentum_ds) * max_tests
 
         # test all possible parameter combinations
         for num_hidden in num_hidden_ds:  # num_hidden
@@ -20,8 +20,8 @@ def test_combinations(num_input, num_output, dataset, num_hidden_ds, learning_ra
                 for momentum in momentum_ds:  # momentum
                     for i in range(max_tests):  # number of test for this configuration
 
-                        percentage = (config_id * i + 1) / total_tests
-                        print(str(percentage) + '%')
+                        percentage = float(((config_id - 1) * max_tests + i)) / float(total_tests)
+                        print(str(int(round(percentage*100))) + '%')
 
                         time_start = time.time()
 
@@ -38,7 +38,7 @@ def test_combinations(num_input, num_output, dataset, num_hidden_ds, learning_ra
                             str(momentum).replace('.', ','),  # momentum
                             str(round(mlp.error, 6)).replace('.', ','),
                             mlp.iteration,
-                            round((time_start - time_stop)/1000, 0)
+                            time_stop - time_start
                         ])
 
                     # compute the next config ID

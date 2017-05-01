@@ -1,4 +1,4 @@
-from DataSet import DataSet
+from ANN.DataSet import DataSet
 
 from ANN.MLP import MLP
 
