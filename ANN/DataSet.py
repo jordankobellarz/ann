@@ -1,6 +1,6 @@
 class DataSet:
 
-    def __init__(self, num_inputs, num_outputs, flat_patterns, percentage_training_patterns = 0.8):
+    def __init__(self, num_inputs, num_outputs, flat_patterns, percentage_training_patterns=0.8):
         """
         Transform the flat patterns matrix in two lists: input and expected
         :param num_inputs: number of inputs 

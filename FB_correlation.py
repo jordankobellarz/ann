@@ -4,7 +4,7 @@ import csv
 ds_facebook = []
 
 #  get the facebook dataset in memory
-with open('dataset_Facebook.csv', 'rb') as csv_file:
+with open('datasets/dataset_Facebook.csv', 'rb') as csv_file:
     reader = csv.reader(csv_file, delimiter=';', quoting=csv.QUOTE_NONNUMERIC)
     for row in reader:
         aux = []

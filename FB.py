@@ -1,6 +1,6 @@
-from MLP import MLP
-from DataSet import DataSet
-import correlation
+from ANN.DataSet import DataSet
+from ANN.MLP import MLP
+import FB_correlation
 
 num_input = 18
 num_hidden = 7
@@ -10,7 +10,7 @@ num_output = 1
 mlp = MLP(num_input, num_hidden, num_output)
 
 # create the data set
-ds = DataSet(num_input, num_output, correlation.ds_facebook_normalized, 0.8)
+ds = DataSet(num_input, num_output, FB_correlation.ds_facebook_normalized, 0.8)
 
 # training parameters
 learning_rate = .00001
