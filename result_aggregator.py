@@ -1,7 +1,7 @@
 import numpy as np
 import csv
 
-file_name = 'results/XOR_1493650844.09'
+file_name = 'results/FB_1493668582.76'
 
 results = []
 with open(file_name + '.csv', 'rb') as file:
@@ -14,13 +14,13 @@ with open(file_name + '_aggregated.csv', 'wb') as file:
 
     wr.writerow(['ID', 'Type', 'Hidden', 'Learning rate', 'Momentum', 'Final error', 'Epochs', 'Total time'])
 
-    last_row = []
+    last_row = results[0]
     config_rows = []
 
-    for row in results:
+    for i, row in enumerate(results):
 
         # if is a new configuration
-        if len(last_row) == 0 or last_row[0] != row[0]:
+        if last_row[0] != row[0] or len(results) == (i + 1):
 
             # aggregate to find the median value of the last config rows
             if len(config_rows) > 0:

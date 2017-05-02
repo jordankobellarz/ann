@@ -17,8 +17,8 @@ ds = DataSet(num_input, num_output, [
     [1, 1, 0],
 ], 1)
 
-learning_rate = .99
-momentum = 0.9
+learning_rate = .05
+momentum = 0
 max_iterations = -1
 min_error = .0001
 log_each_iterations = 100
