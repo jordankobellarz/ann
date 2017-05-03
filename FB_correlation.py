@@ -57,6 +57,15 @@ for i, corr in enumerate(sum_corr):
 
 # get the minimum and maximum value for each column of the dataset
 # we will use these values to normalize the dataset
+
+
+columns = []
+for i in range(19):
+    col = []
+    for j in range(len(ds_facebook)):  # calculate the correlation only for the first "t" rows
+        col.append(ds_facebook[j][i])
+    columns.append(np.array(col))
+
 max_diff_cols = []
 for col in columns:
     max = np.max(col)
@@ -80,6 +89,6 @@ for row in ds_facebook:
             row_aux.append((col - max_diff_cols[i]['min']) / max_diff_cols[i]['diff'])  # X[i] - min(X) / (max(X) - min(X)
 
     # finally, add the max_corr_var column at the end of the row (will be the output of the network)
-    row_aux.append((row[max_corr_var] - max_diff_cols[i]['min']) / max_diff_cols[i]['diff'])
+    row_aux.append((row[max_corr_var] - max_diff_cols[max_corr_var]['min']) / max_diff_cols[max_corr_var]['diff'])
 
     ds_facebook_normalized.append(row_aux)
