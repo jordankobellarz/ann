@@ -1,5 +1,5 @@
 from ANN.DataSet import DataSet
-from ANN.MLP import MLP
+from ANN import MLP
 import FB_correlation
 
 num_input = 18
@@ -7,7 +7,7 @@ num_hidden = 4
 num_output = 1
 
 # create the network
-mlp = MLP(num_input, num_hidden, num_output)
+mlp = MLP.Net(num_input, num_hidden, num_output)
 
 # create the data set
 ds = DataSet(num_input, num_output, FB_correlation.ds_facebook_normalized, 0.8)

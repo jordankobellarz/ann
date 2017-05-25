@@ -37,3 +37,9 @@ class DataSet:
                     'desired': desired
                 })
 
+    @staticmethod
+    def getValues(patterns, type='input'):
+        values = []
+        for pattern in patterns:
+            values.append(pattern[type])
+        return values

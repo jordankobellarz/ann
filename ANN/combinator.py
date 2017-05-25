@@ -1,6 +1,6 @@
 import csv
 import time
-from ANN.MLP import MLP
+from ANN import MLP
 
 def test_combinations(num_input, num_output, dataset, num_hidden_ds, learning_rate_ds, momentum_ds, min_error=0.0001, max_iterations=-1, max_tests=3, file_name='results/DS.csv', log_each_iterations = 10000000):
     with open(file_name, 'wb') as file:
@@ -26,7 +26,7 @@ def test_combinations(num_input, num_output, dataset, num_hidden_ds, learning_ra
                         time_start = time.time()
 
                         # create the MLP and train it
-                        mlp = MLP(num_input, num_hidden, num_output)
+                        mlp = MLP.Net(num_input, num_hidden, num_output)
                         mlp.batch_train(dataset.training_patterns, max_iterations, learning_rate, momentum, min_error, log_each_iterations)
 
                         time_stop = time.time()
