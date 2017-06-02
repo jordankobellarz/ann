@@ -25,7 +25,7 @@ class Net:
         inputs = DataSet.getValues(patterns, 'input')
         desired = DataSet.getValues(patterns, 'desired')
 
-        # phase 1
+        # phase 1 (calculating center and radius for each neuron)
         centers = Utils.k_means(inputs, self.num_hidden_neurons)
         radius = Utils.k_nearest_neighbors(inputs, centers)
         for i, neuron in enumerate(self.hidden_layer.neurons):

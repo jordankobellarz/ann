@@ -1,15 +1,22 @@
 import math
 import random
 
-# Euclidean distance between two scalars or lists
-# https://en.wikipedia.org/wiki/Euclidean_distance
+
 def euclidean_distance(p, q):
+    """
+    Calculate the euclidean distance between the points on the n-dimensional space p and q.
+    Inspired from https://en.wikipedia.org/wiki/Euclidean_distance.
+    :param p: an scalar or an list
+    :param q: an scalar or an list (with the same size as p)
+    :return: the euclidean distance between 
+    """
     result = 0
 
+    # verify if p and q are the same type and have the same size
     if isinstance(p, list) and isinstance(q, list) and len(p) != len(q):
         raise Exception("Both p and q needs to have the same length.")
 
-    # if listA and listB are scalar values, transform to list before
+    # if p and q are scalar values, transform to list before doing calculations
     if not isinstance(p, list) and not isinstance(q, list):
         p = [p]
         q = [q]
@@ -22,40 +29,49 @@ def euclidean_distance(p, q):
     return math.sqrt(result)
 
 
-# set a label (center index) for each input
 def clusterize(inputs, centers):
-
-    closest_center_indexes = [-1] * len(inputs)
+    """
+    Set a label (center index) for each input.
+    Classify each input according to the minimum euclidean distance from an center. 
+    :param inputs: list of inputs
+    :param centers: list of clusters centers
+    :return: 
+    """
+    nearest_center_indexes = [-1] * len(inputs)
 
     for i, input in enumerate(inputs):
 
-        closest_center_index = -1
+        nearest_center_index = -1
         min_euclidean_distance = -1.0
 
+        # get the nearest center from this input
         for j, center in enumerate(centers):
             distance = euclidean_distance(input, center)
-            if distance < min_euclidean_distance or closest_center_index == -1:
-                closest_center_index = j
+            if distance < min_euclidean_distance or nearest_center_index == -1:
+                nearest_center_index = j
                 min_euclidean_distance = distance
 
-        closest_center_indexes[i] = closest_center_index
+        nearest_center_indexes[i] = nearest_center_index
 
     clusters = [None] * len(centers)
     for i in range(len(centers)):
         cluster = []
         for j in range(len(inputs)):
-            if closest_center_indexes[j] == i:
+            if nearest_center_indexes[j] == i:
                 cluster.append(j)
         clusters[i] = cluster
 
     return clusters
 
 
-# K-means algorithm
-# it partitionate the 'inputs' in 'k' clusters
-# from https://pt.coursera.org/learn/machine-learning/lecture/93VPG/k-means-algorithm
-# return the centers for each of the k clusters
 def k_means(inputs, k):
+    """
+    K-means algorithm. It partitionate the 'inputs' in 'K' clusters
+    Inspired from: https://pt.coursera.org/learn/machine-learning/lecture/93VPG/k-means-algorithm
+    :param inputs: inputs to classify
+    :param k: number of clusters to create
+    :return: the center for each of the K clusters
+    """
 
     # select k random inputs to initialize the centers for each cluster
     centers = []
@@ -64,7 +80,7 @@ def k_means(inputs, k):
     for i in range(k):
         centers.append(inputsAux[i])
 
-    # TODO: trocar a condicao de parada por alguma heuristica
+    # TODO: change this stop condition for an heuristic
     iteration = 0
     while iteration < 10000:
 
@@ -91,8 +107,14 @@ def k_means(inputs, k):
 
     return centers
 
-# https://www.youtube.com/watch?v=OUtTI99uRf4
+
 def k_nearest_neighbors(inputs, centers):
+    """
+    Inspired from: https://www.youtube.com/watch?v=OUtTI99uRf4
+    :param inputs: 
+    :param centers: 
+    :return: 
+    """
 
     # clusterize the inputs
     clusters = clusterize(inputs, centers)
@@ -101,7 +123,6 @@ def k_nearest_neighbors(inputs, centers):
     radius = [[]] * len(centers)
     for i in range(len(centers)):
 
-        # get the ce
         center = centers[i]
         sums = [0.0] * len(center)
         cluster_input_indexes = clusters[i]
@@ -128,6 +149,7 @@ def dump_clusters(inputs, centers, radius):
 
     # show information about clusters
     for i, cluster in enumerate(clusters):
-        print("\nCluster #" + str(i+1) + " >>> center:  " + str(centers[i]) + ", radius: " + str(radius[i]) + ", inputs:")
+        print("\n Cluster #" + str(i+1) + " >>> center:  " + str(centers[i]) + ", radius: " + str(radius[i]) + ":")
         for input_index in cluster:
-            print(inputs[input_index])
+            print inputs[input_index]
+    print("\n")
