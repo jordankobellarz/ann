@@ -25,7 +25,7 @@ class Net:
                 neuron.weights[j] = random.randint(10, 90) / 100
             self.neurons.append(Neuron(self.num_inputs))
 
-    def train(self, inputs, max_iterations=-1, initial_learning_rate=0.1, initial_radius=1.0, log_each_iterations=100):
+    def train(self, inputs, max_iterations=-1, initial_learning_rate=0.1, initial_radius=1.1, log_each_iterations=100):
         """
         Train the Self Organizing Map (SOM).
         Inspired from: https://page.mi.fu-berlin.de/rojas/neural/chapter/K15.pdf
@@ -94,13 +94,11 @@ class Net:
             centers.append(neuron.weights)
         return Utils.clusterize(inputs, centers)
 
-    def u_matrix(self, width, height):
-        """Create the U matrix to visualize the map"""
-        # cada ponto na matrix contem a distancia euclidiana de celulas vizinhas
-        u_matrix = [[0 for x in range(width)] for y in range(height)]
+    def get_weights(self):
+        """ Return all neurons weights as an array for the SOM. """
+        weights = []
         for j, neuron in enumerate(self.neurons):
-            for k, neuron in enumerate(self.neurons):
-                print("Neuron #" + j + " weights:" + neuron.weights)
+            weights.append(neuron.weights)
 
     def dump(self):
         for j, neuron in enumerate(self.neurons):

@@ -1,10 +1,16 @@
 import Utils
 import math
 import MLP
+import SOM
 from ANN.DataSet import DataSet
 
 
 class Net:
+
+    # center function constants
+    CENTER_FN_KMEANS = 'kmeans'
+    CENTER_FN_KOHONEN = 'kohonen'
+
     def __init__(self, num_inputs, num_hidden_neurons):
         self.num_hidden_neurons = num_hidden_neurons
         self.num_inputs = num_inputs
@@ -20,18 +26,33 @@ class Net:
         output = self.output_layer.neurons[0].sum(output)
         return output
 
-    def train(self, patterns, max_iterations=-1, learning_rate=.001, min_error=.001, log_each_iterations=1000):
+    def train(self, patterns, center_function, max_iterations=-1, learning_rate=.001, min_error=.001, log_each_iterations=1000):
 
         inputs = DataSet.getValues(patterns, 'input')
         desired = DataSet.getValues(patterns, 'desired')
 
-        # phase 1 (calculating center and radius for each neuron)
-        centers = Utils.k_means(inputs, self.num_hidden_neurons)
+        # ---------------------------------------------------------
+        # Phase 1 (calculating center and radius for each neuron)
+        # ---------------------------------------------------------
+
+        # calculate centers
+        if center_function == self.CENTER_FN_KMEANS:
+            centers = Utils.k_means(inputs, self.num_hidden_neurons)
+        elif center_function == self.CENTER_FN_KOHONEN:
+            SOM_net = SOM.Net(self.num_inputs, self.num_hidden_neurons)
+            SOM_net.train(inputs)
+            centers = SOM_net.get_weights()
+
+        # calculate radius
         radius = Utils.k_nearest_neighbors(inputs, centers)
+
+        # update the centers and radius for each neuron
         for i, neuron in enumerate(self.hidden_layer.neurons):
             neuron.updateCluster(centers[i], radius[i])
 
-        # phase 2 (adaline)
+        # ---------------------------------------------------------
+        # Phase 2 (adaline)
+        # ---------------------------------------------------------
         output_neuron = self.output_layer.neurons[0]
         while self.iteration < max_iterations or max_iterations == -1:
 

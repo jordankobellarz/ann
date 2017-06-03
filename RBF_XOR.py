@@ -16,7 +16,7 @@ ds = DataSet(num_input, num_output, [
     [1, 1, 0],
 ], 1)
 
-rbf_net.train(ds.training_patterns, 1000000, .1, 0.001, 10)
+rbf_net.train(ds.training_patterns, RBFNet.Net.CENTER_FN_KMEANS, 1000000, .1, 0.001, 10)
 
 print(rbf_net.activate([0, 0]))
 print(rbf_net.activate([0, 1]))

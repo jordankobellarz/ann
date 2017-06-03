@@ -29,37 +29,40 @@ def euclidean_distance(p, q):
     return math.sqrt(result)
 
 
+def nearest_center_index(input, centers):
+    """
+    Get the nearest center index from the input, by calculating the minimum euclidean distance.
+    :param input: an input array
+    :param centers: centers of the clusters
+    :return: the index of the nearest cluster from the input
+    """
+    center_index = -1
+    min_euclidean_distance = -1.0
+    for j, center in enumerate(centers):
+        distance = euclidean_distance(input, center)
+        if distance < min_euclidean_distance or center_index == -1:
+            center_index = j
+            min_euclidean_distance = distance
+    return center_index
+
+
 def clusterize(inputs, centers):
     """
-    Set a label (center index) for each input.
-    Classify each input according to the minimum euclidean distance from an center. 
+    Classify each input according to the minimum euclidean distance from each center. 
+    If we have a 5 inputs and 2 centers, the return will be something like this [[0,2,3], [1,4]],
+    meaning that the inputs with indexes 0, 2 and 3 are on the center of index 0, and the inputs 
+    with indexes 1, 4 are on the center of index 1.
     :param inputs: list of inputs
     :param centers: list of clusters centers
-    :return: 
+    :return: a list of clusters each one containing a list of input indexes inside id
     """
-    nearest_center_indexes = [-1] * len(inputs)
+    clusters = []
+    for i in range(len(centers)):
+        clusters.append([])
 
     for i, input in enumerate(inputs):
-
-        nearest_center_index = -1
-        min_euclidean_distance = -1.0
-
-        # get the nearest center from this input
-        for j, center in enumerate(centers):
-            distance = euclidean_distance(input, center)
-            if distance < min_euclidean_distance or nearest_center_index == -1:
-                nearest_center_index = j
-                min_euclidean_distance = distance
-
-        nearest_center_indexes[i] = nearest_center_index
-
-    clusters = [None] * len(centers)
-    for i in range(len(centers)):
-        cluster = []
-        for j in range(len(inputs)):
-            if nearest_center_indexes[j] == i:
-                cluster.append(j)
-        clusters[i] = cluster
+        j = nearest_center_index(input, centers)
+        clusters[j].append(i)
 
     return clusters
 
@@ -119,7 +122,7 @@ def k_nearest_neighbors(inputs, centers):
     # clusterize the inputs
     clusters = clusterize(inputs, centers)
 
-    # calculate the mean radius for all values
+    # calculate the mean radius for all inputs inside each cluster
     radius = [[]] * len(centers)
     for i in range(len(centers)):
 

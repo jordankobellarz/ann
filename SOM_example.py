@@ -28,7 +28,7 @@ SOM_net = SOM.Net(num_inputs, num_neurons)
 
 # train
 max_iterations = 1000
-initial_learning_rate = 0.01
+initial_learning_rate = 0.1
 initial_radius = 1.1
 SOM_net.train(inputs, max_iterations, initial_learning_rate, initial_radius)
 
