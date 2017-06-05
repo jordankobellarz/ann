@@ -26,11 +26,14 @@ num_inputs = 2
 num_neurons = 3
 SOM_net = SOM.Net(num_inputs, num_neurons)
 
-# train
-max_iterations = 80
+# kohonen parameters
+max_iterations = 70
 initial_learning_rate = 0.1
 initial_radius = 1.1
-SOM_net.train(inputs, max_iterations, initial_learning_rate, initial_radius)
+log_each_iterations = 10
+kohonen_net_config = SOM.Config(max_iterations, initial_learning_rate, initial_radius, log_each_iterations)
+
+SOM_net.train(inputs, kohonen_net_config)
 
 # show outputs
 print("Classes", SOM_net.classify(tests))

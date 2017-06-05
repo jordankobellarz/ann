@@ -16,7 +16,15 @@ ds = DataSet(num_input, num_output, [
     [1, 1, 0],
 ], 1)
 
-rbf_net.train(ds.training_patterns, RBFNet.Net.CENTER_FN_KMEANS, 1000000, .1, 0.001, 10)
+# rbf parameters
+max_iterations = 1000000
+learning_rate = .1
+min_error = .001
+log_each_iterations = 10
+rbf_net_config = RBFNet.Config(RBFNet.Config.CENTER_FN_KMEANS, max_iterations, learning_rate, min_error, log_each_iterations)
+
+# train
+rbf_net.train(ds.training_patterns, rbf_net_config)
 
 print(rbf_net.activate([0, 0]))
 print(rbf_net.activate([0, 1]))

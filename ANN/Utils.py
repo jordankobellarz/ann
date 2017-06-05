@@ -138,7 +138,10 @@ def k_nearest_neighbors(inputs, centers):
         # calculate the medium euclidean distance between all neighbors
         for j in range(len(center)):
             number_of_neighbors = len(cluster_input_indexes)
-            sums[j] = math.sqrt(sums[j] / number_of_neighbors)
+            if number_of_neighbors > 0:
+                sums[j] = math.sqrt(sums[j] / number_of_neighbors)
+            else:
+                sums[j] = 0
 
         radius[i] = sums
 

@@ -5,12 +5,21 @@ import SOM
 from ANN.DataSet import DataSet
 
 
-class Net:
-
+class Config:
     # center function constants
     CENTER_FN_KMEANS = 'kmeans'
     CENTER_FN_KOHONEN = 'kohonen'
 
+    def __init__(self, center_function=CENTER_FN_KMEANS, max_iterations=-1, learning_rate=.001, min_error=.001,
+                 log_each_iterations=1000):
+        self.center_function = center_function
+        self.max_iterations = max_iterations
+        self.learning_rate = learning_rate
+        self.min_error = min_error
+        self.log_each_iterations = log_each_iterations
+
+
+class Net:
     def __init__(self, num_inputs, num_hidden_neurons):
         self.num_hidden_neurons = num_hidden_neurons
         self.num_inputs = num_inputs
@@ -26,7 +35,7 @@ class Net:
         output = self.output_layer.neurons[0].sum(output)
         return output
 
-    def train(self, patterns, center_function, max_iterations=-1, learning_rate=.001, min_error=.001, log_each_iterations=1000):
+    def train(self, patterns, config=Config(), center_fn_config=SOM.Config()):
 
         inputs = DataSet.getValues(patterns, 'input')
         desired = DataSet.getValues(patterns, 'desired')
@@ -36,25 +45,25 @@ class Net:
         # ---------------------------------------------------------
 
         # calculate centers
-        if center_function == self.CENTER_FN_KMEANS:
+        if config.center_function == Config.CENTER_FN_KMEANS:
             centers = Utils.k_means(inputs, self.num_hidden_neurons)
-        elif center_function == self.CENTER_FN_KOHONEN:
-            SOM_net = SOM.Net(self.num_inputs, self.num_hidden_neurons)
-            SOM_net.train(inputs)
-            centers = SOM_net.get_weights()
+        elif config.center_function == Config.CENTER_FN_KOHONEN:
+            kohonen = SOM.Net(self.num_inputs, self.num_hidden_neurons)
+            kohonen.train(inputs, center_fn_config)
+            centers = kohonen.get_weights()
 
         # calculate radius
         radius = Utils.k_nearest_neighbors(inputs, centers)
 
         # update the centers and radius for each neuron
         for i, neuron in enumerate(self.hidden_layer.neurons):
-            neuron.updateCluster(centers[i], radius[i])
+            neuron.update_cluster(centers[i], radius[i])
 
         # ---------------------------------------------------------
         # Phase 2 (adaline)
         # ---------------------------------------------------------
         output_neuron = self.output_layer.neurons[0]
-        while self.iteration < max_iterations or max_iterations == -1:
+        while self.iteration < config.max_iterations or config.max_iterations == -1:
 
             self.error = 0.0
 
@@ -62,15 +71,15 @@ class Net:
                 hiddenLayerOutput = self.hidden_layer.activate(input)
                 e = output_neuron.sum(hiddenLayerOutput) - desired[i][0]
                 for j, weight in enumerate(output_neuron.weights):
-                    output_neuron.weights[j] -= learning_rate * e * hiddenLayerOutput[j]
+                    output_neuron.weights[j] -= config.learning_rate * e * hiddenLayerOutput[j]
                 self.error += math.pow(e, 2)
 
             #  stop training if the total error is below the minimum error
             self.error /= len(patterns)
-            if self.error < min_error:
+            if self.error < config.min_error:
                 break
 
-            if not self.iteration % log_each_iterations and self.iteration != 0:
+            if not self.iteration % config.log_each_iterations and self.iteration != 0:
                 print("iteration: " + str(self.iteration) + " error: " + str(self.error))
 
             self.iteration += 1
@@ -81,6 +90,7 @@ class Net:
             output = self.activate(pattern['input'])[0]
             diff = desired - output
             print("test " + str(i) + " = desired: " + str(desired) + ", got: " + str(output) + ", diff: " + str(diff))
+
 
 class Layer:
     def __init__(self, num_input, num_neurons):
@@ -118,6 +128,6 @@ class Neuron:
     def activate(self, input):
         return self.RBF(input)
 
-    def updateCluster(self, center, radius):
+    def update_cluster(self, center, radius):
         self.center = center
         self.radius = radius

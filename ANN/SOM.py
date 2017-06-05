@@ -6,6 +6,13 @@ import random
 from ANN.MLP import Neuron
 
 
+class Config:
+    def __init__(self, max_iterations=100, initial_learning_rate=0.1, initial_radius=1.1, log_each_iterations=10):
+        self.max_iterations = max_iterations
+        self.initial_learning_rate = initial_learning_rate
+        self.initial_radius = initial_radius
+        self.log_each_iterations = log_each_iterations
+
 class Net:
     def __init__(self, num_inputs, num_neurons):
         self.num_neurons = num_neurons
@@ -25,24 +32,21 @@ class Net:
                 neuron.weights[j] = random.randint(10, 90) / 100
             self.neurons.append(Neuron(self.num_inputs))
 
-    def train(self, inputs, max_iterations=-1, initial_learning_rate=0.1, initial_radius=1.1, log_each_iterations=100):
+    def train(self, inputs, config=Config()):
         """
         Train the Self Organizing Map (SOM).
         Inspired from: https://page.mi.fu-berlin.de/rojas/neural/chapter/K15.pdf
         Inspired from: http://www.shy.am/wp-content/uploads/2009/01/kohonen-self-organizing-maps-shyam-guthikonda.pdf
         Inspired from: https://www.youtube.com/watch?v=H9H6s-x-0YE
-        :param inputs: 
-        :param max_iterations: 
-        :param initial_learning_rate: 
-        :param initial_radius: 
-        :param log_each_iterations: 
+        :param inputs:
+        :param config:   
         :return: 
         """
 
-        learning_rate = initial_learning_rate
-        radius = initial_radius
+        learning_rate = config.initial_learning_rate
+        radius = config.initial_radius
 
-        while self.iteration < max_iterations or max_iterations == -1:
+        while self.iteration < config.max_iterations:
 
             # select one random input
             random.shuffle(inputs)
@@ -61,18 +65,16 @@ class Net:
                     # it will have the the biggest increase on weights.
                     relative_distance = math.exp(-math.pow(euclidean_distance, 2) / (2 * math.pow(radius, 2)))
 
-                    print(relative_distance)
-
                     # if this neuron is near the BMU by the radius, update his weights
                     if relative_distance <= radius:
                         for i, weight in enumerate(neuron.weights):
                             neuron.weights[i] += learning_rate * relative_distance * (input[i] - weight)
 
             # update learning rate and radius (they will decay over time)
-            learning_rate = initial_learning_rate * math.exp(-self.iteration / float(max_iterations))
-            radius = initial_radius * math.exp(-self.iteration / float(max_iterations))
+            learning_rate = config.initial_learning_rate * math.exp(-self.iteration / float(config.max_iterations))
+            radius = config.initial_radius * math.exp(-self.iteration / float(config.max_iterations))
 
-            if not self.iteration % log_each_iterations and self.iteration != 0:
+            if not self.iteration % config.log_each_iterations and self.iteration != 0:
                 print("iteration: " + str(self.iteration))
 
             self.iteration += 1
@@ -102,6 +104,7 @@ class Net:
         weights = []
         for j, neuron in enumerate(self.neurons):
             weights.append(neuron.weights)
+        return weights
 
     def dump(self):
         for j, neuron in enumerate(self.neurons):
