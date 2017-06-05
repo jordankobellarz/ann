@@ -1,5 +1,5 @@
 import time
-import MLP_FB_correlation
+import FB_correlation
 from ANN import combinator
 from ANN.DataSet import DataSet
 
@@ -20,7 +20,7 @@ learning_rate_ds = [0.0001, 0.0005, 0.0009, 0.001, 0.005, 0.009]
 momentum_ds = [0.03, 0.04, 0.05]
 
 # create the data set
-ds = DataSet(num_input, num_output, MLP_FB_correlation.ds_facebook_normalized, 0.8)
+ds = DataSet(num_input, num_output, FB_correlation.ds_facebook_normalized, 0.8)
 
 # test all possible combinations
 combinator.test_combinations(

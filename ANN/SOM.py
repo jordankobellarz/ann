@@ -46,24 +46,27 @@ class Net:
 
             # select one random input
             random.shuffle(inputs)
-            input = inputs[0]
 
-            # find the best matching unit (BMU)
-            bmu = self.best_matching_unit(input)
+            for input in inputs:
 
-            # Update the weights of all neurons on the BMU neighborhood, and of the BMU itself
-            for j, neuron in enumerate(self.neurons):
-                euclidean_distance = Utils.euclidean_distance(neuron.weights, bmu.weights)
+                # find the best matching unit (BMU)
+                bmu = self.best_matching_unit(input)
 
-                # relative_distance will be a number between 0 (distant from BMU) and 1 (near to BMU)
-                # The relative_distance between the BMU and itself always be 1, and because that
-                # it will have the the biggest increase on weights.
-                relative_distance = math.exp(-math.pow(euclidean_distance, 2) / (2 * math.pow(radius, 2)))
+                # Update the weights of all neurons on the BMU neighborhood, and of the BMU itself
+                for j, neuron in enumerate(self.neurons):
+                    euclidean_distance = Utils.euclidean_distance(neuron.weights, bmu.weights)
 
-                # if this neuron is near the BMU by the radius, update his weights
-                if relative_distance <= radius:
-                    for i, weight in enumerate(neuron.weights):
-                        neuron.weights[i] += learning_rate * relative_distance * (input[i] - weight)
+                    # relative_distance will be a number between 0 (distant from BMU) and 1 (near to BMU)
+                    # The relative_distance between the BMU and itself always be 1, and because that
+                    # it will have the the biggest increase on weights.
+                    relative_distance = math.exp(-math.pow(euclidean_distance, 2) / (2 * math.pow(radius, 2)))
+
+                    print(relative_distance)
+
+                    # if this neuron is near the BMU by the radius, update his weights
+                    if relative_distance <= radius:
+                        for i, weight in enumerate(neuron.weights):
+                            neuron.weights[i] += learning_rate * relative_distance * (input[i] - weight)
 
             # update learning rate and radius (they will decay over time)
             learning_rate = initial_learning_rate * math.exp(-self.iteration / float(max_iterations))

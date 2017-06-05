@@ -75,6 +75,13 @@ class Net:
 
             self.iteration += 1
 
+    def test(self, patterns):
+        for i, pattern in enumerate(patterns):
+            desired = pattern['desired'][0]
+            output = self.activate(pattern['input'])[0]
+            diff = desired - output
+            print("test " + str(i) + " = desired: " + str(desired) + ", got: " + str(output) + ", diff: " + str(diff))
+
 class Layer:
     def __init__(self, num_input, num_neurons):
         self.num_input = num_input
