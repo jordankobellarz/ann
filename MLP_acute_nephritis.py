@@ -17,7 +17,7 @@ with codecs.open('datasets/acute_nephritis.data', 'rU', 'utf-16') as csv_file:
 np_ds = np.array(ds)
 np_ds = np_ds[:, [0, 1, 2, 3, 4, 5, 7]]
 
-# normalize the rows
+# normalize the dataset
 Normalizer.numbers(np_ds[:, 0])
 Normalizer.yes_no(np_ds[:, 1])
 Normalizer.yes_no(np_ds[:, 2])
