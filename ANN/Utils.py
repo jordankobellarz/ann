@@ -1,7 +1,6 @@
 import math
 import random
 
-
 def euclidean_distance(p, q):
     """
     Calculate the euclidean distance between the points on the n-dimensional space p and q.
@@ -159,3 +158,43 @@ def dump_clusters(inputs, centers, radius):
         for input_index in cluster:
             print inputs[input_index]
     print("\n")
+
+
+class Normalizer:
+
+    @staticmethod
+    def yes_no(denormalized_list):
+        """
+        Normalize yes or no strings to 1 or 0.
+        :return: the same, but normalized list
+        """
+        for i, value in enumerate(denormalized_list):
+            if value == 'yes':
+                denormalized_list[i] = 1.0
+            else:
+                denormalized_list[i] = 0.0
+
+    @staticmethod
+    def number(denormalized_number):
+        return float(denormalized_number.replace(',', '.'))
+
+
+    @staticmethod
+    def numbers(denormalized_list):
+        """
+        Get a list of numbers and put all on the 0 and 1 interval
+        :return: the same, but normalized list
+        """
+
+        # transform all string numbers to floats
+        denormalized_number_list = map(Normalizer.number, denormalized_list)
+
+        # get the list range
+        max_value = max(denormalized_number_list)
+        min_value = min(denormalized_number_list)
+        range_value = max_value - min_value
+
+        for i, value in enumerate(denormalized_number_list):
+            denormalized_list[i] = (value - min_value) / range_value
+
+        return denormalized_list
