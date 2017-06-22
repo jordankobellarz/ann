@@ -52,6 +52,8 @@ class Net:
 
             self.error = 0.0
 
+            random.shuffle(patterns)
+
             # batch forward and backward propagation
             for pattern in patterns:
                 self.reset_deltas()
@@ -135,7 +137,7 @@ class Net:
             desired = pattern['desired'][0]
             output = self.feed_forward(pattern['input'])[0]
             error = desired - output
-            print("test " + str(i) + " = desired: " + str(desired) + ", got: " + str(output) + ", error: " + str(error))
+            print("test " + str(i+1) + " = desired: " + str(desired) + ", got: " + str(output) + ", error: " + str(error))
 
     def mean_square_error(self, desired, output):
         sum = 0.0
