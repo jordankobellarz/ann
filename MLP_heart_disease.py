@@ -21,7 +21,7 @@ mlp = MLP.Net(num_input, num_hidden, num_output)
 # create the data set (80 samples to train and 187 to test)
 ds = DataSet(num_input, num_output, ds, 0.3)
 
-mlp.batch_train(ds.training_patterns, learning_rate=0.1, momentum=0.4,
+mlp.batch_train(ds.training_patterns, learning_rate=0.1, momentum=0.05,
                 min_error=0.025, max_iterations=10000, log_each_iterations=10)
 
-mlp.test(ds.testing_patterns, min_error=0.01)
+mlp.test(ds.testing_patterns, min_error=0.3)

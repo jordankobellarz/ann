@@ -35,7 +35,7 @@ class Net:
         output = self.output_layer.neurons[0].sum(output)
         return output
 
-    def train(self, patterns, config=Config(), center_fn_config=SOM.Config()):
+    def train(self, patterns, config=Config(), center_fn_config=SOM.Config(), centers=[], radius=[]):
 
         inputs = DataSet.getValues(patterns, 'input')
         desired = DataSet.getValues(patterns, 'desired')
@@ -47,13 +47,12 @@ class Net:
         # calculate centers
         if config.center_function == Config.CENTER_FN_KMEANS:
             centers = Utils.k_means(inputs, self.num_hidden_neurons)
+            radius = Utils.k_nearest_neighbors(inputs, centers)
         elif config.center_function == Config.CENTER_FN_KOHONEN:
             kohonen = SOM.Net(self.num_inputs, self.num_hidden_neurons)
             kohonen.train(inputs, center_fn_config)
             centers = kohonen.get_weights()
-
-        # calculate radius
-        radius = Utils.k_nearest_neighbors(inputs, centers)
+            radius = Utils.k_nearest_neighbors(inputs, centers)
 
         # update the centers and radius for each neuron
         for i, neuron in enumerate(self.hidden_layer.neurons):

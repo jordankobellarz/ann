@@ -40,6 +40,6 @@ ds = np_ds.astype(np.float).tolist()
 ds = DataSet(num_input, num_output, ds, 0.75)
 
 mlp.batch_train(ds.training_patterns, learning_rate=0.1, momentum=0.1,
-                min_error=0.0001, max_iterations=10000, log_each_iterations=1)
+                min_error=0.001, max_iterations=100, log_each_iterations=1)
 
-mlp.test(ds.testing_patterns, min_error=0.05)
+mlp.test(ds.testing_patterns, min_error=0.1)
