@@ -1,8 +1,8 @@
 import random
 import math
 
-class Net:
 
+class Net:
     def __init__(self, num_input, num_hidden, num_output):
         self.num_input = num_input
         self.num_hidden = num_hidden
@@ -14,70 +14,59 @@ class Net:
         self.hidden_layer = Layer(num_input, num_hidden)
         self.output_layer = Layer(num_hidden, num_output)
 
-    def batch_train(self, patterns, max_iterations = -1, learning_rate = .001, momentum = .85, min_error = .001, log_each_iterations = 1000):
+    def batch_train(self, patterns, learning_rate=0.1,  momentum=0.85,
+                    min_error=0.001, max_iterations=-1, log_each_iterations=100):
 
+        print("\n>>> Training: ")
         while self.iteration < max_iterations or max_iterations == -1:
 
-            self.error = 0.0
-            self.reset_deltas()
+            self.start_epoch()
 
-            # batch forward and backward propagation
             for pattern in patterns:
                 output = self.feed_forward(pattern['input'])
                 self.back_propagate(pattern['desired'])
+                self.error += Net.mean_squared_error(pattern['desired'], output)
 
-                # calculate the error for this pattern
-                self.error += self.mean_square_error(pattern['desired'], output)
+            self.update_weights(learning_rate, momentum)
 
-            # update weights for hidden and output layer
-            for neuron in self.hidden_layer.neurons:
-                neuron.update_weights(learning_rate, momentum)
-            for neuron in self.output_layer.neurons:
-                neuron.update_weights(learning_rate, momentum)
-
-            #  stop training if the total error is below the minimum error
-            self.error /= len(patterns)
-            if self.error < min_error:
+            if self.end_epoch(len(patterns), min_error, log_each_iterations):
                 break
 
-            if not self.iteration % log_each_iterations and self.iteration != 0:
-                print("iteration: " + str(self.iteration) + " error: " + str(self.error))
+    def online_train(self, patterns, learning_rate=0.1,  momentum=0.85,
+                     min_error=0.001, max_iterations=-1, log_each_iterations=100):
 
-            self.iteration += 1
-
-
-    def online_train(self, patterns, max_iterations = -1, learning_rate = .001, momentum = .85, min_error = .001, log_each_iterations = 1000):
-
+        print("\n>>> Training: ")
         while self.iteration < max_iterations or max_iterations == -1:
 
-            self.error = 0.0
+            self.start_epoch()
 
             random.shuffle(patterns)
-
-            # batch forward and backward propagation
             for pattern in patterns:
                 self.reset_deltas()
                 output = self.feed_forward(pattern['input'])
                 self.back_propagate(pattern['desired'])
+                self.error += Net.mean_squared_error(pattern['desired'], output)
+                self.update_weights(learning_rate, momentum)
 
-                # calculate the error for this pattern
-                self.error += self.mean_square_error(pattern['desired'], output)
-
-                # update weights for hidden and output layer
-                for neuron in self.hidden_layer.neurons:
-                    neuron.update_weights(learning_rate, momentum)
-                for neuron in self.output_layer.neurons:
-                    neuron.update_weights(learning_rate, momentum)
-
-            #  stop training if the total error is below the minimum error
-            self.error /= len(patterns)
-            if self.error < min_error:
+            if self.end_epoch(len(patterns), min_error, log_each_iterations):
                 break
 
-            if not self.iteration % log_each_iterations and self.iteration != 0:
-                print("iteration: " + str(self.iteration) + " error: " + str(self.error))
+    def start_epoch(self):
+        self.iteration += 1
+        self.reset_deltas()
+        self.error = 0.0
 
-            self.iteration += 1
+    def end_epoch(self, num_patterns, min_error, log_each_iterations):
+        self.error /= num_patterns
+        if self.error <= min_error:
+            self.log_iteration(log_each_iterations, True)
+            return True
+        self.log_iteration(log_each_iterations)
+        return False
+
+    def log_iteration(self, log_each_iterations, force=False):
+        if not self.iteration % log_each_iterations and self.iteration != 0 or force:
+            print("iteration: " + str(self.iteration) + " error: " + str(self.error))
 
     def feed_forward(self, input):
         output = self.hidden_layer.activate(input)
@@ -118,31 +107,36 @@ class Net:
             neuron_j.bias_gradient = error * derivative
             neuron_j.bias_delta += error * derivative * 1
 
+    def update_weights(self, learning_rate, momentum):
+        for neuron in self.hidden_layer.neurons:
+            neuron.update_weights(learning_rate, momentum)
+        for neuron in self.output_layer.neurons:
+            neuron.update_weights(learning_rate, momentum)
+
     def reset_deltas(self):
         for neuron in self.hidden_layer.neurons:
             neuron.reset_deltas()
         for neuron in self.output_layer.neurons:
             neuron.reset_deltas()
 
-    def reset_weights_and_bias(self):
-        self.iteration = 0
-        self.error = 0
-        for neuron in self.hidden_layer.neurons:
-            neuron.init_weights_and_bias()
-        for neuron in self.output_layer.neurons:
-            neuron.init_weights_and_bias()
-
-    def test(self, patterns, log_to_file = False):
+    def test(self, patterns, min_error):
+        correct_count = 0
+        print("\n>>> Testing: ")
         for i, pattern in enumerate(patterns):
             desired = pattern['desired'][0]
             output = self.feed_forward(pattern['input'])[0]
-            error = desired - output
-            print("test " + str(i+1) + " = desired: " + str(desired) + ", got: " + str(output) + ", error: " + str(error))
+            error = abs(desired - output)
+            if error <= min_error:
+                correct_count += 1
+            print("#" + str(i+1) + "\tdesired: " + str(desired) + "\tgot: " + str(round(output, 3)) + "\terror: " + str(round(error, 5)))
+        accuracy = round(float(correct_count)/float(len(patterns))*100, 2)
+        print("\n>>> Accuracy: " + str(accuracy) + "%")
 
-    def mean_square_error(self, desired, output):
+    @staticmethod
+    def mean_squared_error(desired, output):
         sum = 0.0
         for i in range(len(desired)):
-            sum += 1.0/2.0 * ((desired[i] - output[i]) ** 2)
+            sum += ((desired[i] - output[i]) ** 2) / 2.0
         return sum
 
     def dump(self):
@@ -154,6 +148,7 @@ class Net:
     def dump_json(self):
         import json
         print(json.dumps(self.dump(), indent=2, sort_keys=True))
+
 
 class Layer:
     def __init__(self, num_input, num_neurons):
@@ -200,6 +195,7 @@ class Layer:
 
         return obj
 
+
 class Neuron:
     def __init__(self, num_input):
         self.num_input = num_input
@@ -212,13 +208,13 @@ class Neuron:
         self.gradients = []  # one gradient for each weight
         self.bias_gradient = 0.0
 
-        # deltas (error * derivative * x)
+        # accumulate deltas for batch train (error * derivative * x)
         self.deltas = []   # one delta for each weight
         self.bias_delta = 0.0
 
         # last deltas (to use with momentum)
-        self.last_deltas = [1.0] * num_input
-        self.last_bias_delta = 1.0
+        self.last_deltas = [0.0] * num_input
+        self.last_bias_delta = 0.0
 
         self.output = 0.0  # store the output for each activation
 
@@ -258,7 +254,7 @@ class Neuron:
         self.output = self.af(self.sum(input))   # save the output for later
         return self.output
 
-    def update_weights(self, learning_rate, momentum = 0.5):
+    def update_weights(self, learning_rate, momentum=0.5):
         self.bias += learning_rate * self.bias_delta + momentum * self.last_bias_delta
         for i, weight in enumerate(self.weights):
             self.weights[i] += learning_rate * self.deltas[i] + momentum * self.last_deltas[i]

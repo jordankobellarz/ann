@@ -5,7 +5,6 @@ import codecs
 import numpy as np
 from ANN.Utils import Normalizer
 
-# gera o CSV a partir do arquivo .data
 # http://archive.ics.uci.edu/ml/datasets/Acute+Inflammations
 ds = []
 with codecs.open('datasets/acute_nephritis.data', 'rU', 'utf-16') as csv_file:
@@ -27,10 +26,7 @@ Normalizer.yes_no(np_ds[:, 5])
 Normalizer.yes_no(np_ds[:, 6])
 
 # save the dataset as csv
-np.savetxt('datasets/acute_nephritis.csv', np_ds, delimiter=";", fmt='%s')
-
-# get the normalized dataset
-normalized_ds = np_ds.astype(np.float).tolist()
+# np.savetxt('datasets/acute_nephritis.csv', np_ds, delimiter=";", fmt='%s')
 
 num_input = 6
 num_hidden = 1
@@ -40,9 +36,10 @@ num_output = 1
 mlp = MLP.Net(num_input, num_hidden, num_output)
 
 # create the data set (90 samples to train and 30 to test)
-ds = DataSet(num_input, num_output, normalized_ds, 0.75)
+ds = np_ds.astype(np.float).tolist()
+ds = DataSet(num_input, num_output, ds, 0.75)
 
-mlp.batch_train(ds.training_patterns, max_iterations=-1, learning_rate=0.1,
-                 momentum=0.1, min_error=0.0001, log_each_iterations=10)
+mlp.batch_train(ds.training_patterns, learning_rate=0.1, momentum=0.1,
+                min_error=0.0001, max_iterations=10000, log_each_iterations=1)
 
-mlp.test(ds.testing_patterns)
+mlp.test(ds.testing_patterns, min_error=0.05)

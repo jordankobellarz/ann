@@ -17,15 +17,10 @@ ds = DataSet(num_input, num_output, [
     [1, 1, 0],
 ], 1)
 
-learning_rate = .05
-momentum = 0
-max_iterations = -1
-min_error = .0001
-log_each_iterations = 100
+mlp.batch_train(ds.training_patterns, learning_rate=0.01, momentum=0.85,
+                min_error=0.0001, max_iterations=-1, log_each_iterations=1000)
 
-mlp.batch_train(ds.training_patterns, max_iterations, learning_rate, momentum, min_error, log_each_iterations)
-
-mlp.test(ds.training_patterns)
+mlp.test(ds.training_patterns, min_error=0.0001)
 
 # mlp.dump_json()
 
