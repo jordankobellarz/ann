@@ -1,5 +1,6 @@
 from ANN.DataSet import DataSet
-from ANN import MLP
+from ANN.MLP import Model
+from ANN.MLP import Layer
 import csv
 import codecs
 import numpy as np
@@ -25,15 +26,14 @@ Normalizer.yes_no(np_ds[:, 4])
 Normalizer.yes_no(np_ds[:, 5])
 Normalizer.yes_no(np_ds[:, 6])
 
-# save the dataset as csv
-# np.savetxt('datasets/acute_nephritis.csv', np_ds, delimiter=";", fmt='%s')
-
 num_input = 6
 num_hidden = 1
 num_output = 1
 
-# create the network
-mlp = MLP.Net(num_input, num_hidden, num_output)
+# create the model
+mlp = Model(num_input=num_input)
+mlp.add_layer(num_neurons=num_hidden)  # hidden layer
+mlp.add_layer(num_neurons=num_output)  # output layer
 
 # create the data set (90 samples to train and 30 to test)
 ds = np_ds.astype(np.float).tolist()
