@@ -39,10 +39,9 @@ class Model:
 
             random.shuffle(patterns)
             for pattern in patterns:
-                self.reset_deltas()
                 output = self.feed_forward(pattern['input'])
                 self.back_propagate(pattern['desired'])
-                self.error += Net.mean_squared_error(pattern['desired'], output)
+                self.error += Model.mean_squared_error(pattern['desired'], output)
                 self.update_weights(learning_rate, momentum)
 
             if self.end_epoch(len(patterns), min_error, log_each_iterations):
@@ -50,7 +49,6 @@ class Model:
 
     def start_epoch(self):
         self.iteration += 1
-        self.reset_deltas()
         self.error = 0.0
 
     def end_epoch(self, num_patterns, min_error, log_each_iterations):
@@ -73,10 +71,8 @@ class Model:
 
     def back_propagate(self, desired):
 
-        output_layer = self.layers[1]
-        hidden_layer = self.layers[0]
-
         # calculate output layer gradients and deltas
+        output_layer = self.layers[-1]
         for k, neuron_k in enumerate(output_layer.neurons):
             derivative = neuron_k.d_af(neuron_k.output)  # derivative for neuron k
             error = (desired[k] - neuron_k.output)  # error for neuron k
@@ -91,24 +87,25 @@ class Model:
             neuron_k.bias_delta += error * derivative * 1
 
         # calculate hidden layer gradients and deltas
-        for j, neuron_j in enumerate(hidden_layer.neurons):
-            derivative = neuron_j.d_af(neuron_j.output)  # derivative for neuron j
-            error = 0.0  # error for neuron j
+        for l, layer in enumerate(self.layers[0:-1]):
+            for j, neuron_j in enumerate(layer.neurons):
+                derivative = neuron_j.d_af(neuron_j.output)  # derivative for neuron j
+                error = 0.0  # error for neuron j
 
-            # calculate the retropropagated error (from output layer)
-            for k, neuron_k in enumerate(output_layer.neurons):
-                error += neuron_k.gradients[j] * neuron_k.weights[k]
+                # calculate the retropropagated error (from last layer backwards)
+                for k, neuron_k in enumerate(self.layers[l+1].neurons):
+                    error += neuron_k.gradients[j] * neuron_k.weights[k]
 
-            # calculate gradients and deltas for each weight
-            for i, weight_i in enumerate(neuron_j.weights):
-                neuron_j.gradients[i] = error * derivative
-                neuron_j.deltas[i] += error * derivative * hidden_layer.input[i]
+                # calculate gradients and deltas for each weight
+                for i, weight_i in enumerate(neuron_j.weights):
+                    neuron_j.gradients[i] = error * derivative
+                    neuron_j.deltas[i] += error * derivative * layer.input[i]
 
-            # calculate gradient and delta for bias
-            neuron_j.bias_gradient = error * derivative
-            neuron_j.bias_delta += error * derivative * 1
+                # calculate gradient and delta for bias
+                neuron_j.bias_gradient = error * derivative
+                neuron_j.bias_delta += error * derivative * 1
 
-    def add_layer(self, num_neurons, ):
+    def add_layer(self, num_neurons):
         if len(self.layers) == 0:
             # if is the first hidden layer
             self.layers.append(Layer(num_input=self.num_input, num_neurons=num_neurons))
@@ -121,11 +118,6 @@ class Model:
         for layer in self.layers:
             for neuron in layer.neurons:
                 neuron.update_weights(learning_rate, momentum)
-
-    def reset_deltas(self):
-        for layer in self.layers:
-            for neuron in layer.neurons:
-                neuron.reset_deltas()
 
     def test(self, patterns, min_error):
         correct_count = 0
@@ -213,7 +205,7 @@ class Neuron:
         self.weights = []  # weights
 
         # gradients (error * derivative)
-        self.gradients = []  # one gradient for each weight
+        self.gradients = [0.0] * num_input  # one gradient for each weight
         self.bias_gradient = 0.0
 
         # accumulate deltas for batch train (error * derivative * x)
@@ -227,24 +219,13 @@ class Neuron:
         self.output = 0.0  # store the output for each activation
 
         # reset neuron
-        self.reset_deltas()
-        self.reset_gradients()
         self.init_weights_and_bias()
-
-    def reset_deltas(self):
-        self.deltas = [0.0] * self.num_input
-        self.bias_delta = 0.0
-
-    def reset_gradients(self):
-        self.gradients = [0.0] * self.num_input
-        self.bias_gradient = 0.0
 
     def init_weights_and_bias(self):
         self.bias = random.randint(-9, 9) / 10.0  # between -0.9 and 0.9
         self.weights = []
         for i in range(self.num_input):
             self.weights.append(random.randint(-9, 9) / 10.0)
-
 
     def af(self, u):
         return 1.0 / (1.0 + math.exp(-u))
@@ -262,7 +243,7 @@ class Neuron:
         self.output = self.af(self.sum(input))   # save the output for later
         return self.output
 
-    def update_weights(self, learning_rate, momentum=0.5):
+    def update_weights(self, learning_rate, momentum=0):
         self.bias += learning_rate * self.bias_delta + momentum * self.last_bias_delta
         for i, weight in enumerate(self.weights):
             self.weights[i] += learning_rate * self.deltas[i] + momentum * self.last_deltas[i]
@@ -270,6 +251,12 @@ class Neuron:
         # save current deltas to use with momentum on the next iteration
         self.last_deltas = self.deltas[:]
         self.last_bias_delta = self.bias_delta
+
+        # reset gradients and deltas
+        self.gradients = [0.0] * self.num_input
+        self.bias_gradient = 0.0
+        self.deltas = [0.0] * self.num_input
+        self.bias_delta = 0.0
 
     def dump(self):
         return {

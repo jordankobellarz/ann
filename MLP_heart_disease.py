@@ -1,27 +1,12 @@
-from ANN.DataSet import DataSet
-from ANN import MLP
-import csv
+from ANN.MLP import Model
+import Datasets
 
-# http://archive.ics.uci.edu/ml/datasets/SPECT+Heart
-ds = []
-with open('datasets/heart_disease.csv') as csv_file:
-    reader = csv.reader(csv_file, delimiter=',')
-    for row in reader:
-        for i, value in enumerate(row):
-            row[i] = float(value)
-        ds.append(row)
+# create the model
+mlp = Model(num_input=22)
+mlp.add_layer(num_neurons=20)  # hidden layer
+mlp.add_layer(num_neurons=1)  # output layer
 
-num_input = 22
-num_hidden = 20
-num_output = 1
-
-# create the network
-mlp = MLP.Net(num_input, num_hidden, num_output)
-
-# create the data set (80 samples to train and 187 to test)
-ds = DataSet(num_input, num_output, ds, 0.3)
-
-mlp.batch_train(ds.training_patterns, learning_rate=0.1, momentum=0.05,
-                min_error=0.025, max_iterations=10000, log_each_iterations=10)
-
-mlp.test(ds.testing_patterns, min_error=0.3)
+ds = Datasets.heart_disease()
+mlp.online_train(ds.training_patterns, learning_rate=0.3, momentum=0.9,
+                min_error=0.00001, max_iterations=-1, log_each_iterations=10)
+mlp.test(ds.testing_patterns, min_error=0.4999)

@@ -1,27 +1,14 @@
-from ANN.DataSet import DataSet
+from ANN.MLP import Model
+import Datasets
 
-from ANN import MLP
+# create the model
+mlp = Model(num_input=2)
+mlp.add_layer(num_neurons=2)  # hidden layer
+mlp.add_layer(num_neurons=1)  # output layer
 
-num_input = 2
-num_hidden = 2
-num_output = 1
-
-# create the network
-mlp = MLP.Net(num_input, num_hidden, num_output)
-
-# create the data set
-ds = DataSet(num_input, num_output, [
-    [0, 0, 0],
-    [0, 1, 1],
-    [1, 0, 1],
-    [1, 1, 0],
-], 1)
-
-mlp.batch_train(ds.training_patterns, learning_rate=0.01, momentum=0.85,
+ds = Datasets.XOR()
+mlp.batch_train(ds.training_patterns, learning_rate=0.1, momentum=0.85,
                 min_error=0.0001, max_iterations=-1, log_each_iterations=1000)
-
-mlp.test(ds.training_patterns, min_error=0.0001)
-
-# mlp.dump_json()
+mlp.test(ds.training_patterns, min_error=0.1)
 
 
