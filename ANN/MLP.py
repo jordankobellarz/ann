@@ -105,14 +105,14 @@ class Model:
                 neuron_j.bias_gradient = error * derivative
                 neuron_j.bias_delta += error * derivative * 1
 
-    def add_layer(self, num_neurons):
+    def add_layer(self, num_neurons, activation):
         if len(self.layers) == 0:
             # if is the first hidden layer
-            self.layers.append(Layer(num_input=self.num_input, num_neurons=num_neurons))
+            self.layers.append(Layer(num_input=self.num_input, num_neurons=num_neurons, activation=activation))
         else:
             # if is the nth hidden layer
             last_layer_num_outputs = self.layers[-1].num_neuron
-            self.layers.append(Layer(num_input=last_layer_num_outputs, num_neurons=num_neurons))
+            self.layers.append(Layer(num_input=last_layer_num_outputs, num_neurons=num_neurons, activation=activation))
 
     def update_weights(self, learning_rate, momentum):
         for layer in self.layers:
@@ -151,7 +151,7 @@ class Model:
 
 
 class Layer:
-    def __init__(self, num_input=1, num_neurons=1):
+    def __init__(self, num_input=1, num_neurons=1, activation='sigmoid'):
         self.num_input = num_input
         self.num_neuron = num_neurons
 
@@ -159,10 +159,10 @@ class Layer:
         self.input = []  # store this layer input for each feedforward to facilitate backpropagation
 
         for i in range(num_neurons):
-            self.add_neuron()
+            self.add_neuron(activation)
 
-    def add_neuron(self):
-        self.neurons.append(Neuron(self.num_input))
+    def add_neuron(self, activation=None):
+        self.neurons.append(Neuron(self.num_input, activation))
 
     def get_outputs(self):  # get the stored outputs in this layer
         output = []
@@ -197,7 +197,12 @@ class Layer:
 
 
 class Neuron:
-    def __init__(self, num_input):
+    # activation function constants
+    FN_SIGMOID = 'sigmoid'
+    FN_LINEAR = 'linear'
+
+    def __init__(self, num_input, activation=FN_SIGMOID):
+        self.activation = activation
         self.num_input = num_input
 
         self.bias = 0.0  # bias
@@ -228,10 +233,16 @@ class Neuron:
             self.weights.append(random.randint(-9, 9) / 10.0)
 
     def af(self, u):
-        return 1.0 / (1.0 + math.exp(-u))
+        if self.activation == self.FN_SIGMOID:
+            return 1.0 / (1.0 + math.exp(-u))
+        elif self.activation == self.FN_LINEAR:
+            return u
 
     def d_af(self, y):
-        return y * (1.0 - y)
+        if self.activation == self.FN_SIGMOID:
+            return y * (1.0 - y)
+        elif self.activation == self.FN_LINEAR:
+            return 1.0
 
     def sum(self, input):
         potential = self.bias * 1

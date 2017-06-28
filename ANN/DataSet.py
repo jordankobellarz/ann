@@ -9,6 +9,8 @@ class DataSet:
         :param percentage_training_patterns: percentage of training patterns
         """
 
+        self.ds = ds
+
         self.training_patterns = []
         self.testing_patterns = []
 
@@ -58,15 +60,19 @@ class DataSet:
                 desired_aux = self.get_desired(pattern_aux, num_inputs)
                 if input == input_aux and desired != desired_aux:  # a conflict!!
                     conflict_count += 1
+
                     print "Pattern " + str(i+1) + " and " + str(i+j+1) + " are conflicting!!"
                     if not (i+j) in conflict_indexes:
                         conflict_indexes.append(i+j)
 
         # remove conflicting indexes
+        """
         conflict_indexes.sort()
         ini_len = len(ds)
         for i in conflict_indexes:
             ds.pop(i - (ini_len - len(ds)))
+        """
+
 
         if conflict_count:
             print str(conflict_count) + " conflicting patterns found, " + str(len(conflict_indexes)) + " removed!!"
@@ -76,3 +82,9 @@ class DataSet:
 
     def get_desired(self, pattern, num_inputs):
         return pattern[num_inputs:len(pattern)]
+
+    def save(self, path):
+        import csv
+        with open(path, 'a') as f:
+            writer = csv.writer(f)
+            writer.writerows(self.ds)
