@@ -1,7 +1,6 @@
 from ANN import RBFNet
 from ANN import SOM
-from ANN.DataSet import DataSet
-import FB_correlation
+import Datasets
 
 num_input = 18
 num_hidden = 20
@@ -11,7 +10,7 @@ num_output = 1
 rbf_net = RBFNet.Net(num_input, num_hidden)
 
 # create the data set
-ds = DataSet(num_input, num_output, FB_correlation.ds_facebook_normalized, 0.8)
+ds = Datasets.facebook()
 
 # kohonen parameters
 max_iterations = 100
