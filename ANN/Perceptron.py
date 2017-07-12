@@ -28,8 +28,9 @@ class Model():
             self.iteration += 1
             self.error /= len(patterns)
             if self.error <= min_error:
+                self.log_iteration(log_each_iterations, True)
                 break
-            self.log_iteration(log_each_iterations, True)
+            self.log_iteration(log_each_iterations)
 
     def log_iteration(self, log_each_iterations, force=False):
         if not self.iteration % log_each_iterations and self.iteration != 0 or force:

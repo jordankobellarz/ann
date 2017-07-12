@@ -1,10 +1,11 @@
 from ANN.MLP import Model
+from ANN.MLP import Neuron
 import Datasets
 
 # create the model
 mlp = Model(num_input=18)
-mlp.add_layer(num_neurons=20)  # hidden layer
-mlp.add_layer(num_neurons=1)  # output layer
+mlp.add_layer(num_neurons=20, activation=Neuron.FN_SIGMOID)  # hidden layer
+mlp.add_layer(num_neurons=1, activation=Neuron.FN_SIGMOID)  # output layer
 
 ds = Datasets.facebook()
 mlp.online_train(ds.training_patterns, learning_rate=0.06, momentum=0.85,
